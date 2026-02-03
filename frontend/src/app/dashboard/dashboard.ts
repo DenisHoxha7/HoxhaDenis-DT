@@ -1,52 +1,79 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Importa FormsModule
+import { FormsModule } from '@angular/forms';
 import { DeliveryService } from '../delivery';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Aggiungi FormsModule qui
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent implements OnInit {
   deliveries: any[] = [];
-  
-  // Modello per il nuovo inserimento
-  newDelivery = {
-    tracking_code: '',
-    destinatario: '',
-    indirizzo: '',
-    fascia_oraria: '',
-    priorita: 'LOW'
-  };
+  isProcessing = false;
+  newDelivery = { destinatario: '', indirizzo: '', fascia_oraria: '', priorita: 'LOW' };
 
-  constructor(private ds: DeliveryService) {}
+  constructor(private ds: DeliveryService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadData();
   }
 
   loadData() {
-    this.ds.getDeliveries().subscribe(data => this.deliveries = data);
-  }
-
-  onSubmit() {
-    this.ds.addDelivery(this.newDelivery).subscribe(() => {
-      this.loadData(); // Ricarica la lista dopo l'inserimento
-      // Reset del form
-      this.newDelivery = { tracking_code: '', destinatario: '', indirizzo: '', fascia_oraria: '', priorita: 'LOW' };
+    this.ds.getDeliveries().subscribe({
+      next: (data) => {
+        this.deliveries = data;
+        this.isProcessing = false; // Sblocca sempre qui
+        this.cdr.detectChanges(); // FORZA AGGIORNAMENTO UI
+      },
+      error: (err) => {
+        console.error(err);
+        this.isProcessing = false;
+      }
     });
   }
 
-  getBorderColor(stato: string): string {
-    switch (stato) {
-      case 'READY': return 'grey';
-      case 'OUT_FOR_DELIVERY': return 'blue';
-      case 'DELIVERED': return 'green';
-      case 'FAILED': return 'red';
-      default: return 'black';
+  generateTrackingCode(): string {
+    const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `TRK-${randomStr}`;
+  }
+
+  onSubmit() {
+    if (this.isProcessing) return;
+    if (!this.newDelivery.destinatario || !this.newDelivery.indirizzo) {
+      alert("Compila i campi obbligatori!");
+      return;
     }
+
+    this.isProcessing = true;
+    const body = { ...this.newDelivery, tracking_code: this.generateTrackingCode() };
+
+    this.ds.addDelivery(body).subscribe({
+      next: () => {
+        this.newDelivery = { destinatario: '', indirizzo: '', fascia_oraria: '', priorita: 'LOW' };
+        this.loadData(); // Ricarica subito
+      },
+      error: (err) => {
+        alert("Errore nell'inserimento");
+        this.isProcessing = false;
+      }
+    });
+  }
+
+  onUpdateStatus(id: number, status: string) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+
+    this.ds.updateStatus(id, status).subscribe({
+      next: () => {
+        this.loadData(); // Ricarica subito dopo l'aggiornamento
+      },
+      error: (err) => {
+        console.error(err);
+        this.isProcessing = false;
+      }
+    });
   }
 }

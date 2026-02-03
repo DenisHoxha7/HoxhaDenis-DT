@@ -1,31 +1,56 @@
-<div class="container">
-  <h2>Nuova Consegna</h2>
-  <form (ngSubmit)="onSubmit()" class="form-container">
-    <input [(ngModel)]="newDelivery.tracking_code" name="tracking" placeholder="Codice Tracking" required>
-    <input [(ngModel)]="newDelivery.destinatario" name="dest" placeholder="Destinatario" required>
-    <input [(ngModel)]="newDelivery.indirizzo" name="ind" placeholder="Indirizzo" required>
-    <input [(ngModel)]="newDelivery.fascia_oraria" name="fascia" placeholder="Fascia Oraria (es. 14-16)" required>
-    <select [(ngModel)]="newDelivery.priorita" name="prio">
-      <option value="LOW">LOW</option>
-      <option value="MEDIUM">MEDIUM</option>
-      <option value="HIGH">HIGH</option>
-    </select>
-    <button type="submit">Aggiungi</button>
-  </form>
+<div class="dashboard-wrapper">
+  <header class="top-bar">
+    <h1>🚀 Delivery Tracker</h1>
+    <div class="stats">In carico: {{ deliveries.length }} consegne</div>
+  </header>
 
-  <hr>
+  <main class="content">
+    <section class="form-section">
+      <div class="form-card">
+        <h3>Nuova Spedizione</h3>
+        <div class="input-group">
+          <input [(ngModel)]="newDelivery.destinatario" placeholder="👤 Nome Destinatario">
+          <input [(ngModel)]="newDelivery.indirizzo" placeholder="📍 Indirizzo di consegna">
+          <input [(ngModel)]="newDelivery.fascia_oraria" placeholder="⏰ Fascia Oraria">
+          <select [(ngModel)]="newDelivery.priorita">
+            <option value="LOW">Priorità Bassa</option>
+            <option value="MEDIUM">Priorità Media</option>
+            <option value="HIGH">Priorità ALTA</option>
+          </select>
+          <button (click)="onSubmit()" [disabled]="isProcessing" [class.loading]="isProcessing">
+            {{ isProcessing ? 'Creazione...' : 'Crea Spedizione' }}
+          </button>
+        </div>
+      </div>
+    </section>
 
-  <h2>Consegne Attive</h2>
-  <div class="grid">
-    <div *ngFor="let d of deliveries" class="card" [style.border-color]="getBorderColor(d.stato)">
-      <!-- Badge Priorità HIGH -->
-      <div *ngIf="d.priorita === 'HIGH'" class="badge-high">HIGH PRIORITY</div>
-      
-      <h3>{{ d.tracking_code }}</h3>
-      <p><strong>Destinatario:</strong> {{ d.destinatario }}</p>
-      <p><strong>Indirizzo:</strong> {{ d.indirizzo }}</p>
-      <p><strong>Fascia:</strong> {{ d.fascia_oraria }}</p>
-      <p><strong>Stato:</strong> {{ d.stato }}</p>
-    </div>
-  </div>
+    <section class="grid">
+      <div *ngFor="let d of deliveries" 
+           class="delivery-card" 
+           [ngClass]="d.stato.toLowerCase()"
+           [class.high-priority]="d.priorita === 'HIGH'">
+        
+        <div class="priority-badge" *ngIf="d.priorita === 'HIGH'">HIGH</div>
+        
+        <div class="card-header">
+          <span class="trk-code">#{{ d.tracking_code }}</span>
+          <span class="status-dot"></span>
+        </div>
+
+        <div class="card-body">
+          <h3>{{ d.destinatario }}</h3>
+          <p class="address">{{ d.indirizzo }}</p>
+          <p class="time">Fascia: {{ d.fascia_oraria }}</p>
+          <p class="status-text">Stato attuale: <strong>{{ d.stato.replace('_', ' ') }}</strong></p>
+        </div>
+
+        <div class="card-actions">
+          <button (click)="onUpdateStatus(d.id, 'READY')" [disabled]="isProcessing">READY</button>
+          <button (click)="onUpdateStatus(d.id, 'OUT_FOR_DELIVERY')" [disabled]="isProcessing">OUT</button>
+          <button (click)="onUpdateStatus(d.id, 'DELIVERED')" [disabled]="isProcessing">DONE</button>
+          <button (click)="onUpdateStatus(d.id, 'FAILED')" [disabled]="isProcessing">FAIL</button>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>

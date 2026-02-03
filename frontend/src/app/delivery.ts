@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class DeliveryService {
-  private apiUrl = 'http://127.0.0.1:5000/deliveries';
+  private apiUrl = 'https://obscure-trout-jjr6vwwj9vxrhvgr-5000.app.github.dev/deliveries';
 
   constructor(private http: HttpClient) { }
 
@@ -17,5 +17,9 @@ export class DeliveryService {
   // Aggiunto per il commit 5
   addDelivery(delivery: any): Observable<any> {
     return this.http.post(this.apiUrl, delivery);
+  }
+  // Aggiunto per il commit 6
+  updateStatus(id: number, status: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/status`, { stato: status });
   }
 }
