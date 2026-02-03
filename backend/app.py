@@ -3,11 +3,14 @@ from flask_cors import CORS
 from DatabaseWrapper import DatabaseWrapper
 
 app = Flask(__name__)
+# Abilitiamo CORS per far parlare Angular e Flask
 CORS(app)
+
 db = DatabaseWrapper()
 
 @app.route('/deliveries', methods=['GET'])
 def get_deliveries():
+    """Endpoint per leggere le consegne dal Wrapper"""
     try:
         data = db.get_all_deliveries()
         return jsonify(data), 200
@@ -16,16 +19,18 @@ def get_deliveries():
 
 @app.route('/deliveries', methods=['POST'])
 def add_delivery():
+    """Endpoint per inserire una consegna tramite il Wrapper"""
     data = request.json
-    # Validazione base
-    if not data.get('tracking_code') or not data.get('destinatario'):
-        return jsonify({"error": "Dati mancanti"}), 400
+    if not data or not data.get('tracking_code'):
+        return jsonify({"error": "Dati obbligatori mancanti"}), 400
+    
     try:
         db.add_delivery(data)
-        return jsonify({"message": "Successo"}), 201
+        return jsonify({"message": "Consegna inserita"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    db.init_table()
+    # Inizializza la tabella all'avvio
+    db.init_database()
     app.run(debug=True, port=5000)
