@@ -1,0 +1,25 @@
+.container { padding: 20px; font-family: sans-serif; }
+.form-container { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
+.form-container input, .form-container select { padding: 8px; }
+
+.grid { display: flex; flex-wrap: wrap; gap: 15px; }
+.card { 
+    border: 3px solid; 
+    padding: 15px; 
+    border-radius: 8px; 
+    width: 250px; 
+    position: relative;
+    background: #fff;
+}
+
+.badge-high {
+    background-color: orange;
+    color: white;
+    font-weight: bold;
+    padding: 4px 8px;
+    font-size: 10px;
+    border-radius: 4px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}

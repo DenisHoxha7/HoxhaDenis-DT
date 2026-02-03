@@ -1,16 +1,31 @@
 <div class="container">
-  <h1>Delivery Dashboard</h1>
+  <h2>Nuova Consegna</h2>
+  <form (ngSubmit)="onSubmit()" class="form-container">
+    <input [(ngModel)]="newDelivery.tracking_code" name="tracking" placeholder="Codice Tracking" required>
+    <input [(ngModel)]="newDelivery.destinatario" name="dest" placeholder="Destinatario" required>
+    <input [(ngModel)]="newDelivery.indirizzo" name="ind" placeholder="Indirizzo" required>
+    <input [(ngModel)]="newDelivery.fascia_oraria" name="fascia" placeholder="Fascia Oraria (es. 14-16)" required>
+    <select [(ngModel)]="newDelivery.priorita" name="prio">
+      <option value="LOW">LOW</option>
+      <option value="MEDIUM">MEDIUM</option>
+      <option value="HIGH">HIGH</option>
+    </select>
+    <button type="submit">Aggiungi</button>
+  </form>
+
+  <hr>
+
+  <h2>Consegne Attive</h2>
   <div class="grid">
-    <div *ngFor="let item of deliveries" 
-         class="card" 
-         [style.border-color]="getBorderColor(item.stato)">
-      <h3>{{ item.tracking_code }}</h3>
-      <p><strong>Destinatario:</strong> {{ item.destinatario }}</p>
-      <p><strong>Indirizzo:</strong> {{ item.indirizzo }}</p>
-      <p><strong>Stato:</strong> {{ item.stato }}</p>
+    <div *ngFor="let d of deliveries" class="card" [style.border-color]="getBorderColor(d.stato)">
+      <!-- Badge Priorità HIGH -->
+      <div *ngIf="d.priorita === 'HIGH'" class="badge-high">HIGH PRIORITY</div>
       
-      <!-- Badge per priorità HIGH -->
-      <span *ngIf="item.priorita === 'HIGH'" class="badge-high">HIGH PRIORITY</span>
+      <h3>{{ d.tracking_code }}</h3>
+      <p><strong>Destinatario:</strong> {{ d.destinatario }}</p>
+      <p><strong>Indirizzo:</strong> {{ d.indirizzo }}</p>
+      <p><strong>Fascia:</strong> {{ d.fascia_oraria }}</p>
+      <p><strong>Stato:</strong> {{ d.stato }}</p>
     </div>
   </div>
 </div>

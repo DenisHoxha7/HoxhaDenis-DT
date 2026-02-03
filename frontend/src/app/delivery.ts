@@ -6,12 +6,16 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class DeliveryService {
-  // In Codespaces usa l'URL pubblico della porta 5000 se necessario
   private apiUrl = 'http://127.0.0.1:5000/deliveries';
 
   constructor(private http: HttpClient) { }
 
   getDeliveries(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
+  }
+
+  // Aggiunto per il commit 5
+  addDelivery(delivery: any): Observable<any> {
+    return this.http.post(this.apiUrl, delivery);
   }
 }
